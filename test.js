@@ -8,9 +8,23 @@ Instagram.set('client_id', clientID);
 Instagram.set('client_secret', clientSecret);
 Instagram.set('access_token', accessToken);
 
+/*
 Instagram.tags.info({
 	name: 'blue',
-	    complete: function(data){
+	    complete: function(data) {
 	    console.log(data);
 	}
+    });
+*/
+
+Instagram.users.info({
+	user_id: 389471461,
+	    complete: function(data) {
+	    console.log(data);
+	}
+    });
+
+
+Instagram.media.info({
+	media_id: '1296794688128354617_389471461'
     });

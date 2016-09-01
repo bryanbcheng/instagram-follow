@@ -1,11 +1,33 @@
 var express = require("express");
 var app = express();
+app.set('port', process.env.PORT || 5000));
+app.use(express.static(__dirname + '/public'));
+
+app.set('views', __dirname + '/views');
+//app.set('view engine', 'ejs');
+
+app.get('/', function(request, response) {
+	response.render('index.html');
+    });
+
+app.get('/privacy', function(request, response) {
+	response.render('privacy.html');
+    });
+
+app.listen(app.get('port'), function() {
+	console.log('Node app is running on port', app.get('port'));
+    });
+
+/*
 var port = process.env.PORT || 3700;
 var io = require('socket.io').listen(app.listen(port));
+*/
 var Instagram = require('instagram-node-lib');
+/*
 var http = require('http');
 var request = ('request');
 var intervalID;
+*/
 
 /**
  * Set the paths for your files
@@ -19,9 +41,8 @@ var pub = __dirname + '/public',
  * @type {String}
  */
 var clientID = 'c0369456459d4b35a9cc82fa4ce97453',
-    clientSecret = 'e11c3adffa80479c9fdf77aff0c54600';
-
-// scope=public_content+follower_list+relationships+likes
+    clientSecret = 'e11c3adffa80479c9fdf77aff0c54600',
+    accessToken = '3801943796.c036945.65eb08f817d5462ab00d3cc24e5a2ce9';
 
 /**
  * Set the configuration
@@ -31,14 +52,16 @@ Instagram.set('client_secret', clientSecret);
 //Instagram.set('callback_url', 'http://YOUR_URL.com/callback');
 Instagram.set('redirect_uri', 'http://YOUR_URL.com');
 //Instagram.set('maxSockets', 10); only if i need more
+Instagram.set('access_token', accessToken);
 
+/*
 url = Instagram.oauth.authorization_url({
 	scope: 'public_content follower_list relationshipss likes' // use a space when specifying a scope; it will be encoded into a plus
 	display: 'touch'
     });
 
 
-/* Sample code to get oauth */
+/* Sample code to get oauth *
 app.get('/oauth', function(request, response){
 	Instagram.oauth.ask_for_access_token({
 		request: request,
@@ -62,22 +85,27 @@ app.get('/oauth', function(request, response){
 	    });
 	return null;
     });
+*/
 
 function getMedia() {
     Instagram.tags.recent({
-	    
+	    name: 'dogsofinstagram',
+		complete: function(data, pagination) {
+		console.log("got media");
+		evaluateMedia(data[0]);
+		    //console.log(pagination);
+	    }
 	});
 }
 
-function evaluateUser(userId) {
+function evaluateMedia(media) {
     Instagram.users.info({
-	    user_id: userId,
+	    user_id: media.user.id,
 		complete: function(data, pagination) {
-		// data is a javascript object/array/null matching that shipped Instagram
-		// when available (mostly /recent), pagination is a javascript object with the pagination information
+		console.log("evaluating media");
 		if (verifyUser(data)) {
-		    likeMedia(userId, data.counts);
-		    followUser(userId, data.counts);
+		    likeUser(media.user.id, data.counts);
+		    followUser(media.user.id, data.counts);
 		}
 	    },
 		error: function(errorMessage, errorObject, caller) {
@@ -89,44 +117,93 @@ function evaluateUser(userId) {
 }
 
 function verifyUser(data) {
+    console.log("verifying user");
     // Put in various filters
-    if (data.username contains "spitz") return true;
-    if (data.username contains "lier" || "cat") return false;
+    var allStr = data.username + " " + data.bio + " " + data.full_name;
+    allStr = allStr.toLowerCase();
+
+    if (allStr.includes("lier") ||
+	allStr.includes("cav") ||
+	allStr.includes("cat") ||
+	allStr.includes("pug") ||
+	allStr.includes("boston terrier") ||
+	allStr.includes("bull") ||
+	allStr.includes("french"))
+	return false;
+
+    if (data.counts.follows == 0) return false;
+
+    if (allStr.includes("spitz")) return true;
 
     return true;
 }
 
-function likeMedia(userId, stats) {
-    if (stats.media < 15) {
+var LIKE_NEW = 15,
+    LIKE_NUM = 5;
+function likeUser(userId, stats) {
+    console.log("liking user");
+    if (stats.media < LIKE_NEW) {
+	// like all media if < LIKE_NEW
+	console.log("liking all media");
 	Instagram.users.recent({
 		user_id: userId,
 		    complete: function(data, pagination) {
-
+		    for (var i = 0; i < data.length; i++) {
+			likeMedia(data[i]);
+		    }
 		}
 	    });
-	// like all media if < 15
     } else {
+	// like LIKE_NUM media
+	console.log("liking a few media");
 	Instagram.users.recent({
 		user_id: userId,
                     complete: function(data, pagination) {
-		    
+		    for (var i = 0; i < LIKE_NUM; i++) {
+                        likeMedia(data[i]);
+                    }
 		}
             });
-	// like 5 media
     }
 }
 
+function likeMedia(media) {
+    // filter by media
+    console.log("liking media " + media.id);
+    //Instagram.media.like({ media_id: media.id });
+}
+
+var FOLLOW_NEW = 25,
+    FOLLOW_MAX = 7000;
 function followUser(userId, stats) {
     if (stats.follows < 25 ||
 	stats.follows > 7000 ||
 	stats.followed_by > 10 * stats.follows ||
-	2 * stats.follows < 3 * stats.followed_by)
+	2 * stats.follows > 3 * stats.followed_by)
 	return;
 
+
+    Instagram.users.relationship({
+	    user_id: userId,
+		complete: function(data) {
+		console.log("checking relationship");
+		console.log(data);
+		console.log(userId);
+		// No need to follow if following already or other user already follows
+		if (data.outgoing_status == 'follows' ||
+		    data.incoming_status == 'follows')
+		    return;
+
+		console.log("following user " + userId);
+		//Instagram.users.follow(userId);
+	    }
+	});
     // follow user if not followed already
 }
 
-Instagram.tags.recent({name:"dogsofinstagram"});
+getMedia();
+
+/*
 
 // https://devcenter.heroku.com/articles/using-socket-io-with-node-js-on-heroku
 io.configure(function () {
@@ -140,9 +217,11 @@ io.configure(function () {
   io.set("polling duration", 10);
 });
 
+
+/*
 /**
  * Set your app main configuration
- */
+ *
 app.configure(function(){
     app.use(express.bodyParser());
     app.use(express.methodOverride());
@@ -152,39 +231,19 @@ app.configure(function(){
     app.use(express.errorHandler());
 });
 
-/**
- * Render your index/view "my choice was not use jade"
- */
-app.get("/views", function(req, res){
-    res.render("index");
-});
-
 // check subscriptions
 // https://api.instagram.com/v1/subscriptions?client_secret=YOUR_CLIENT_ID&client_id=YOUR_CLIENT_SECRET
 
 /**
- * On socket.io connection we get the most recent posts
- * and send to the client side via socket.emit
- */
-io.sockets.on('connection', function (socket) {
-  Instagram.tags.recent({
-      name: 'lollapalooza',
-      complete: function(data) {
-        socket.emit('firstShow', { firstShow: data });
-      }
-  });
-});
-
-/**
  * Needed to receive the handshake
- */
+ *
 app.get('/callback', function(req, res){
     var handshake =  Instagram.subscriptions.handshake(req, res);
 });
 
 /**
  * for each new post Instagram send us the data
- */
+ *
 app.post('/callback', function(req, res) {
     var data = req.body;
 
@@ -198,13 +257,5 @@ app.post('/callback', function(req, res) {
     res.end();
 });
 
-/**
- * Send the url with the hashtag to the client side
- * to do the ajax call based on the url
- * @param  {[string]} url [the url as string with the hashtag]
- */
-function sendMessage(url) {
-  io.sockets.emit('show', { show: url });
-}
-
 console.log("Listening on port " + port);
+*/

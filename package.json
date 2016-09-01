@@ -1,7 +1,7 @@
 {
-  "name": "Advanced Search and Follow",
+  "name": "PowerSF - Powerful Search and Follow",
   "version": "0.0.1",
-  "description": "Use more advanced tag search",
+  "description": "Use more advanced tag search to like and follow more targetted users",
   "author": "Bryan Cheng",
   "dependencies": {
     "socket.io": "0.9.16",
