@@ -1,1 +1,1 @@
-https://api.instagram.com/oauth/authorize/?client_id=c0369456459d4b35a9cc82fa4ce97453&redirect_uri=http://taeyangfollow.herokuapp.com&response_type=code&scope=public_content+follower_list+relationships+likes
+https://api.instagram.com/oauth/authorize/?client_id=c0369456459d4b35a9cc82fa4ce97453&redirect_uri=http://powersf.herokuapp.com&response_type=code&scope=public_content+follower_list+relationships+likes

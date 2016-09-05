@@ -7,7 +7,7 @@
   "dependencies": {
     "express": "4.13.3",
     "ejs": "2.4.1",
-    "instagram-node-lib": "~0.1.1"
+    "instagram-node": "0.5.8"
   },
   "repository": {
     "type": "git",
