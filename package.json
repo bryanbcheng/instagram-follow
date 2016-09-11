@@ -7,7 +7,9 @@
   "dependencies": {
     "express": "4.13.3",
     "ejs": "2.4.1",
-    "instagram-node": "0.5.8"
+    "instagram-node": "0.5.8",
+    "bootstrap": "~3.3.7",
+    "jquery": "~3.1.0"
   },
   "repository": {
     "type": "git",

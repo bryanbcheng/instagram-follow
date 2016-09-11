@@ -1,6 +1,4 @@
 (function() {
-    var socket = io.connect('http://lollagram.herokuapp.com');
-
     /**
      * [Namespacing]
      */
@@ -12,10 +10,10 @@
          * [Application initialization method / call for the methods being initializated in order]
          */
         init: function() {
-            this.mostRecent();
+            //this.mostRecent();
             this.getData();
-            this.aboutInfo();
-            this.mobileNav();
+            //this.aboutInfo();
+            //this.mobileNav();
         },
 
         /**
@@ -41,64 +39,22 @@
          */
         getData: function() {
             var self = this;
-            socket.on('show', function(data) {
-                var url = data.show;
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    crossDomain: true,
-                    dataType: 'jsonp'
-                }).done(function (data) {
-                    self.renderTemplate(data);
-                }); 
-            });
+	    $.ajax({
+                url: 'medias',
+                type: 'GET',
+                dataType: 'json'
+            }).done(function (data) {
+                self.renderTemplate(data);
+            }); 
         },
 
         /**
          * [Render the images on the page and check for layout resize]
          */
         renderTemplate: function(data) {
-            var lastAnimate, lastSrc, nextSrc, last,
-                current = data.data[0].images.standard_resolution.url,
-                w = $(document).width();
-
-                var
-                    query = data,
-                    source = $('#mostRecent-tpl').html(),
-                    compiledTemplate = Handlebars.compile(source),
-                    result = compiledTemplate(query),
-                    imgWrap = $('#imgContent');
-
-                imgWrap.prepend(result);
-
-                last = $('#imgContent a:first-child');
-                lastSrc = $('#imgContent a:first-child').find('img').attr('src');
-                nextSrc = $('#imgContent a:nth-child(2)').find('img').attr('src');
-
-                if( lastSrc === nextSrc ) {
-                    last.remove();
-                }
-
-                last = $('#imgContent').find(':first-child').removeClass('Hvh');
-
-                if( w >= 900 ) {
-                    lastAnimate = $('#imgContent').find(':nth-child(2)').addClass('animated fadeInLeft');
-                }
-
-                if( w <= 900 ) {
-                    lastAnimate = $('#imgContent').find(':nth-child(1)').addClass('animated fadeInDown');
-                }
-
-                $(window).resize(function() {
-                    var w = $(document).width();
-                    if( w >= 900 ) {
-                        lastAnimate = $('#imgContent').find(':nth-child(2)').addClass('animated fadeInLeft');
-                    }
-
-                    if( w <= 900 ) {
-                        lastAnimate = $('#imgContent').find(':nth-child(1)').addClass('animated fadeInDown');
-                    }
-                });
+	    $("#test-image").attr("src", data[0].images.standard_resolution.url)
+	    console.log("rendering image");
+	    console.log(data);
         },
 
         /**

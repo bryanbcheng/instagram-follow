@@ -2,6 +2,9 @@ var express = require("express");
 var app = express();
 app.set('port', process.env.PORT || 5000);
 app.use(express.static(__dirname + '/public'));
+app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js')); // redirect bootstrap JS
+app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redirect JS jQuery
+app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
 
 app.set('views', __dirname + '/views');
 app.engine('html', require('ejs').renderFile);
@@ -10,6 +13,13 @@ app.set('view engine', 'html');
 app.get('/', function(request, response) {
 	response.render('index');
     });
+
+app.get('/medias', function(request, response) {
+	getMedias(function(medias) {
+		response.send(medias);
+	    });
+    });
+
 
 app.get('/privacy', function(request, response) {
 	response.render('privacy.html');
@@ -55,11 +65,14 @@ ig.use({ access_token: accessToken });
 //ig.use({ client_id: clientId,
 //	    client_secret: clientSecret });
 
-function getMedia() {
-    ig.tag_media_recent('dogsofinstagram',
+function getMedias(cb) {
+    ig.tag_media_recent('dogs',
 			function(err, medias, pagination, remaining, limit) {
 			    console.log("got media");
-			    evaluateMedia(medias[0]);
+			    console.log(medias);
+			    cb(medias);
+			    //publishMedia(medias);
+			    //evaluateMedia(medias[0]);
 			    //console.log(pagination);
 			});
 }
@@ -182,7 +195,7 @@ function followUser(userId, stats) {
 	});
 }
 
-getMedia();
+//getMedias();
 
 /*
 
