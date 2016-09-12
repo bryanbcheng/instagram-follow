@@ -7,8 +7,8 @@ app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redi
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
 
 app.set('views', __dirname + '/views');
-app.engine('html', require('ejs').renderFile);
-app.set('view engine', 'html');
+//app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'pug');
 
 app.get('/', function(request, response) {
 	response.render('index');
@@ -20,9 +20,12 @@ app.get('/medias', function(request, response) {
 	    });
     });
 
+app.get('/about', function(request, response) {
+	response.render('about');
+    });
 
 app.get('/privacy', function(request, response) {
-	response.render('privacy.html');
+	response.render('privacy');
     });
 
 app.listen(app.get('port'), function() {

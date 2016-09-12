@@ -5,11 +5,11 @@
   "author": "Bryan Cheng",
   "main": "server.js",
   "dependencies": {
-    "express": "4.13.3",
-    "ejs": "2.4.1",
-    "instagram-node": "0.5.8",
     "bootstrap": "~3.3.7",
-    "jquery": "~3.1.0"
+    "express": "4.13.3",
+    "instagram-node": "0.5.8",
+    "jquery": "~3.1.0",
+    "pug": "^2.0.0-beta6"
   },
   "repository": {
     "type": "git",
