@@ -1,0 +1,25 @@
+div.panel.panel-primary
+  div.panel-heading
+    h3.panel-title #{stats.username}
+  div.panel_body
+    div(id='carousel' + hash class='carousel slide' data-ride='carousel')
+      ol.carousel-indicators
+        li.active(data-target='#carousel' + hash data-slide-to="0")
+        li(data-target='#carousel' + hash data-slide-to="1")
+        li(data-target='#carousel' + hash data-slide-to="2")
+
+      .carousel-inner(role='listbox')
+        .item.active
+          img.img-thumbnail(src=medias[0].images.standard_resolution.url)
+        .item
+          img.img-thumbnail(src=medias[1].images.standard_resolution.url)
+        .item
+          img.img-thumbnail(src=medias[2].images.standard_resolution.url)
+
+      a.left.carousel-control(href='#carousel' + hash role='button' data-slide='prev')
+        span.glyphicon.glyphicon-chevron-left(aria-hidden='true')
+        span.sr-only Previous
+
+      a.right.carousel-control(href='#carousel' + hash role='button' data-slide='next')
+        span.glyphicon.glyphicon-chevron-right(aria-hidden='true')
+        span.sr-only Next

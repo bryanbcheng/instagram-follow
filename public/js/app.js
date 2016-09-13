@@ -42,17 +42,18 @@
 	    $.ajax({
                 url: 'medias',
                 type: 'GET',
-                dataType: 'json'
+                dataType: 'html'
             }).done(function (data) {
                 self.renderTemplate(data);
-            }); 
+	    });
         },
 
         /**
          * [Render the images on the page and check for layout resize]
          */
         renderTemplate: function(data) {
-	    $("#test-image").attr("src", data[0].images.standard_resolution.url)
+	    $("#feed").html(data);
+	    //$("#test-image").attr("src", data[0].images.standard_resolution.url)
 	    console.log("rendering image");
 	    console.log(data);
         },

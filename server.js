@@ -5,6 +5,7 @@ app.use(express.static(__dirname + '/public'));
 app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js')); // redirect bootstrap JS
 app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redirect JS jQuery
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
+app.use('/fonts', express.static(__dirname + '/node_modules/bootstrap/dist/fonts'));
 
 app.set('views', __dirname + '/views');
 //app.engine('html', require('ejs').renderFile);
@@ -15,8 +16,9 @@ app.get('/', function(request, response) {
     });
 
 app.get('/medias', function(request, response) {
-	getMedias(function(medias) {
-		response.send(medias);
+	getMedias(function(userData) {
+		console.log(userData);
+		response.render('userCard', userData);
 	    });
     });
 
@@ -72,12 +74,43 @@ function getMedias(cb) {
     ig.tag_media_recent('dogs',
 			function(err, medias, pagination, remaining, limit) {
 			    console.log("got media");
-			    console.log(medias);
-			    cb(medias);
-			    //publishMedia(medias);
+			    //console.log(medias);
+			    getUserMediasStats(medias[0].user.id, cb);
 			    //evaluateMedia(medias[0]);
 			    //console.log(pagination);
 			});
+}
+
+function getUserMediasStats(userId, cb) {
+    ig.user_media_recent(userId, function(err, medias, pagination, remaining, limit) {
+	    if (err) {
+                // handle err
+                return;
+            }
+
+	    ig.user(userId, function(err, result, remaining, limit) {
+		    if (err) {
+			// handle err
+			return;
+		    }
+
+		    ig.user_relationship(userId, function(err, relationship, remaining, limit) {
+			    if (err) {
+				// handle err
+				return;
+			    }
+
+			    // form userData object
+			    var userData = {
+				stats: result,
+				medias: medias,
+				relationship: relationship,
+				hash: require('crypto').createHash('md5').update(medias[0].user.username).digest("hex")
+			    };
+			    cb(userData);
+			});
+		});
+	});
 }
 
 function evaluateMedia(media) {
@@ -199,20 +232,3 @@ function followUser(userId, stats) {
 }
 
 //getMedias();
-
-/*
-
-// https://devcenter.heroku.com/articles/using-socket-io-with-node-js-on-heroku
-io.configure(function () {
-  io.set("transports", [
-    'websocket'
-    , 'xhr-polling'
-    , 'flashsocket'
-    , 'htmlfile'
-    , 'jsonp-polling'
-  ]);
-  io.set("polling duration", 10);
-});
-
-
-*/
