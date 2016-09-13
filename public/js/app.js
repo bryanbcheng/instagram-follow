@@ -53,7 +53,6 @@
          */
         renderTemplate: function(data) {
 	    $("#feed").html(data);
-	    //$("#test-image").attr("src", data[0].images.standard_resolution.url)
 	    console.log("rendering image");
 	    console.log(data);
         },
